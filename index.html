@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>email地址自动补全</title>
+    <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+    <style type="text/css">
+        .form-field {
+            height: 60px;
+        }
+        input{
+            width: 200px;
+            height:34px;
+            border: 1px solid #000;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    $(function(){
+        var options = {
+            suggestFromFirstLetter:true
+        };
+        $("input[name='accname']").emailAddrSuggest(options);
+    });
+
+
+    (function($){
+        $.fn.emailAddrSuggest = function(options){
+            var emailvar = new Array("@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com");
+            var options = $.extend({}, $.fn.emailAddrSuggest.defaults, options);//为扩展留用
+            return this.each(function(){
+                var $this = $(this);
+                $this.keyup(function(e){
+                    var _inputValu = $this.val();
+                    var emailText = "";
+                    if(_inputValu.indexOf("@") > 0){
+                        var _beforeEamil = _inputValu.split("@")[0];
+                        var _endEamil = _inputValu.split("@")[1];
+
+                        for(var i = 0; i < emailvar.length; i++){
+                            if(emailvar[i].indexOf(_endEamil) > 0){
+                                emailText += "<div>"+ _beforeEamil + emailvar[i]+"</div>";
+                            }
+                        }
+
+                        $("#xxx").empty();
+                        $("#xxx").append($(emailText));
+                    }
+                });
+
+//                debugger;
+            });
+
+        };
+        $.fn.emailAddrSuggest.defaults = {};
+    })(jQuery);
+
+</script>
+<form action="#"method="post">
+    <ul id="register-ul">
+        <li class="form-field">
+            <label for="">帐户</label>
+            <input name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名">
+            <div id="xxx"></div>
+            <span class="tips-field"></span>
+        </li>
+
+
+
+        <li class="form-field">
+            <label for="">密码</label>
+            <input name="password" tabindex="1" type="text" value="" placeholder="" original-title="">
+            <span class="tips-field"></span>
+        </li>
+
+        <li class="form-field">
+            <label for=""></label>
+            <button type="submit" class="submit pub_btn red huge-width" tabindex="4">下一步</button>
+        </li>
+    </ul>
+</form>
+</body>
+</html>
