@@ -8,65 +8,127 @@
         .form-field {
             height: 60px;
         }
-        input{
+
+        input {
             width: 200px;
-            height:34px;
+            height: 34px;
             border: 1px solid #000;
             padding: 0;
+        }
+        #email-list div{
+            padding: 5px 0;
+        }
+        #email-list div.current {
+            background-color: #f00;
         }
     </style>
 </head>
 <body>
 <script type="text/javascript">
-    $(function(){
-        var options = {
-            suggestFromFirstLetter:true
-        };
-        $("input[name='accname']").emailAddrSuggest(options);
+    $(function () {
+        $("input[name='accname']").emailAddrSuggest();
     });
 
-
-    (function($){
-        $.fn.emailAddrSuggest = function(options){
+    (function ($) {
+        $.fn.emailAddrSuggest = function (options) {
             var emailvar = new Array("@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com");
             var options = $.extend({}, $.fn.emailAddrSuggest.defaults, options);//为扩展留用
-            return this.each(function(){
-                var $this = $(this);
-                $this.keyup(function(e){
-                    var _inputValu = $this.val();
+            return this.each(function () {
+                var _$this = $(this);
+                var _input_width = $($(this).get(0)).width();
+                $(this).after("<div id='email-list' style='width:200px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + $(this).get(0).offsetLeft + "px; top:" + ($(this).get(0).offsetTop + $(this).height() + 2) + "px; z-index:5px; '></div>");
+                _$this.keyup(function (e) {
+                    var _inputValu = _$this.val();
                     var emailText = "";
-                    if(_inputValu.indexOf("@") > 0){
+                    if (_inputValu.indexOf("@") > 0) {
                         var _beforeEamil = _inputValu.split("@")[0];
                         var _endEamil = _inputValu.split("@")[1];
 
-                        for(var i = 0; i < emailvar.length; i++){
-                            if(emailvar[i].indexOf(_endEamil) > 0){
-                                emailText += "<div>"+ _beforeEamil + emailvar[i]+"</div>";
+                        if (_endEamil == "") {
+                            for (var i = 0; i < emailvar.length; i++) {
+                                emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
                             }
-                        }
+                        } else {
 
-                        $("#xxx").empty();
-                        $("#xxx").append($(emailText));
+                            for (var i = 0; i < emailvar.length; i++) {
+                                //if (emailvar[i].indexOf(_endEamil) > 0 || emailvar[i] != _endEamil) {
+                                if (emailvar[i].indexOf(_endEamil) > 0) {
+                                    emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
+                                }
+                            }
+
+                        }
+                        $("#email-list").empty().css("border", "1px solid #ccc");
+                        $("#email-list").html($(emailText));
                     }
+
+                    $("#email-list div").mouseover(function(){
+                        $(this).addClass("current");
+                    }).mouseout(function(){
+                        $(this).removeClass("current");
+                    }).click(function(){
+                        _$this.val($(this).text());
+                        $("#email-list").empty().css("border", "0");
+                    });
+
+
+                    $(document).keyup(function (event) {
+                        var _keyCode = event.keyCode;
+                        var _currentDiv = $("#email-list").find("div.current");
+
+                        if (_keyCode == 38) {//up
+
+                            if(_currentDiv.length == 0){
+                                $("#email-list").find("div:first").addClass("current");
+                                _$this.focus();
+//                                _$this.unbind("keyup");
+//                                _$this.emailAddrSuggest();
+
+                            }
+                            console.log('up');
+                            return false;
+
+                        } else if (_keyCode == 40) {//down
+                            console.log("down");
+                            return false;
+                        } else if (_keyCode == 13) {//down
+                            $("#email-list").empty().css("border", "0");
+                            return false;
+                        }
+                    });
+
+                    $(document).keydown(function (event) {
+
+                        var _keyCode = event.keyCode;
+                        var _currentDiv = $("#email-list").find("div.current");
+                        if (_keyCode == 13) {//enter
+                            if(_currentDiv.text() != ""){
+                                _$this.val(_currentDiv.text());
+                            }
+                            $("#email-list").empty().css("border", "0");
+                            return false;
+                        }
+                    });
+
+
                 });
 
-//                debugger;
             });
-
         };
         $.fn.emailAddrSuggest.defaults = {};
+
+
     })(jQuery);
 
 </script>
-<form action="#"method="post">
+<form action="#" method="post">
     <ul id="register-ul">
         <li class="form-field">
             <label for="">帐户</label>
-            <input name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名">
-            <div id="xxx"></div>
+            <input name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱"
+                   original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
             <span class="tips-field"></span>
         </li>
-
 
 
         <li class="form-field">
