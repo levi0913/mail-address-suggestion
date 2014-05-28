@@ -45,8 +45,7 @@
 
 
                     if (_keyCode == 38) {//up
-                        debugger;
-                        _currentDiv = $("#email-list").find("div.current");//当前选择的元素 有可能中间鼠标滑动到其它选择元素上，所以重新再获取一次
+//                        _currentDiv = $("#email-list").find("div.current");//当前选择的元素 有可能中间鼠标滑动到其它选择元素上，所以重新再获取一次
                         //有可选的，否则隐藏提示
                         if(_suggestList > 0){
 
@@ -54,15 +53,48 @@
                                 $("#email-list").find("div:first").addClass("current");
                                 _$this.focus();
                             }else{
-                                debugger;
-
+                                if(_currentDiv.prev().length == 0){//已经是第一个，就移动到最后一个
+                                    $("#email-list div").removeClass("current");
+                                    $("#email-list").find("div:last").addClass("current");
+                                    _$this.focus();
+                                }else{
+                                    //TODO:两句合并一句
+                                    _currentDiv.removeClass("current");
+                                    _currentDiv.prev().addClass("current");
+                                }
                             }
                         }else{
                             hideSuggestions();
                         }
 
                     } else if (_keyCode == 40) {//down
-                        return false;
+
+                        //_currentDiv = $("#email-list").find("div.current");//当前选择的元素 有可能中间鼠标滑动到其它选择元素上，所以重新再获取一次
+                        //有可选的，否则隐藏提示
+                        if(_suggestList > 0){
+
+                            if(_currentDiv.length == 0){
+                                $("#email-list").find("div:last").addClass("current");
+                                _$this.focus();
+                            }else{
+
+
+                                if(_currentDiv.next().length == 0){//已经是第一个，就移动到最后一个
+                                    $("#email-list div").removeClass("current");
+                                    $("#email-list").find("div:first").addClass("current");
+                                    _$this.focus();
+                                }else{
+                                    //TODO:两句合并一句
+                                    _currentDiv.removeClass("current");
+                                    _currentDiv.next().addClass("current");
+                                }
+                            }
+                        }else{
+                            hideSuggestions();
+                        }
+
+
+
                     } else if (_keyCode == 27) {//esc
                         hideSuggestions();
                         return false;
@@ -91,7 +123,7 @@
                                     }
                                 }
                             }
-                            
+
                             $("#email-list").empty().css("border", "1px solid #ccc");
                             $("#email-list").html($(emailText));
                             $("#email-list").find("div:first").addClass("current");
@@ -108,37 +140,6 @@
                         });
                     }
 
-
-
-
-//                    $(document).keyup(function (event) {
-//
-//                        var _keyCode = event.keyCode;
-//                        var _currentDiv = $("#email-list").find("div.current");
-//                        if (_keyCode == 38) {//up
-//                            debugger;
-//                            if(_currentDiv.length == 0){
-//                                $("#email-list").find("div:first").addClass("current");
-//                                _$this.focus();
-//                            }else{
-//
-//                            }
-//                            return false;
-//
-//                        } else if (_keyCode == 40) {//down
-//                            debugger;
-//                            if(_currentDiv.length == 0){
-//                                $("#email-list").find("div:last").addClass("current");
-//                                _$this.focus();
-//                            }else{
-//
-//                            }
-//                            return false;
-//                        } else if (_keyCode == 13) {//down
-//                            hideSuggestions();
-//                            return false;
-//                        }
-//                    });
 
 
                     /**
