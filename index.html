@@ -37,84 +37,151 @@
                 var _$this = $(this);
                 var _input_width = $($(this).get(0)).width();
                 $(this).after("<div id='email-list' style='width:200px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + $(this).get(0).offsetLeft + "px; top:" + ($(this).get(0).offsetTop + $(this).height() + 2) + "px; z-index:5px; '></div>");
-                _$this.keyup(function (e) {
-                    var _inputValu = _$this.val();
-                    var emailText = "";
-                    if (_inputValu.indexOf("@") > 0) {
-                        var _beforeEamil = _inputValu.split("@")[0];
-                        var _endEamil = _inputValu.split("@")[1];
+                _$this.keyup(function (event) {
 
-                        if (_endEamil == "") {
-                            for (var i = 0; i < emailvar.length; i++) {
-                                emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
-                            }
-                        } else {
-
-                            for (var i = 0; i < emailvar.length; i++) {
-                                //if (emailvar[i].indexOf(_endEamil) > 0 || emailvar[i] != _endEamil) {
-                                if (emailvar[i].indexOf(_endEamil) > 0) {
-                                    emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
-                                }
-                            }
-
-                        }
-                        $("#email-list").empty().css("border", "1px solid #ccc");
-                        $("#email-list").html($(emailText));
-                    }
-
-                    $("#email-list div").mouseover(function(){
-                        $(this).addClass("current");
-                    }).mouseout(function(){
-                        $(this).removeClass("current");
-                    }).click(function(){
-                        _$this.val($(this).text());
-                        $("#email-list").empty().css("border", "0");
-                    });
+                    var _keyCode = event.keyCode;
+                    var _currentDiv = $("#email-list").find("div.current");//默认选择第一个元素
+                    var _suggestList = $("#email-list").find("div").length;//总共有多少个
 
 
-                    $(document).keyup(function (event) {
-                        var _keyCode = event.keyCode;
-                        var _currentDiv = $("#email-list").find("div.current");
-
-                        if (_keyCode == 38) {//up
+                    if (_keyCode == 38) {//up
+                        debugger;
+                        _currentDiv = $("#email-list").find("div.current");//当前选择的元素 有可能中间鼠标滑动到其它选择元素上，所以重新再获取一次
+                        //有可选的，否则隐藏提示
+                        if(_suggestList > 0){
 
                             if(_currentDiv.length == 0){
                                 $("#email-list").find("div:first").addClass("current");
                                 _$this.focus();
-//                                _$this.unbind("keyup");
-//                                _$this.emailAddrSuggest();
+                            }else{
+                                debugger;
 
                             }
-                            console.log('up');
-                            return false;
-
-                        } else if (_keyCode == 40) {//down
-                            console.log("down");
-                            return false;
-                        } else if (_keyCode == 13) {//down
-                            $("#email-list").empty().css("border", "0");
-                            return false;
+                        }else{
+                            hideSuggestions();
                         }
-                    });
+
+                    } else if (_keyCode == 40) {//down
+                        return false;
+                    } else if (_keyCode == 27) {//esc
+                        hideSuggestions();
+                        return false;
+                    } else if (_keyCode == 13) {//enter
+                        if(_currentDiv.text() != ""){
+                            _$this.val(_currentDiv.text());
+                        }
+                        hideSuggestions();
+                        return false;
+                    }else{
+                        var _inputValu = _$this.val();
+                        var emailText = "";
+                        if (_inputValu.indexOf("@") > 0) {
+                            var _beforeEamil = _inputValu.split("@")[0];
+                            var _endEamil = _inputValu.split("@")[1];
+
+                            if (_endEamil == "") {
+                                for (var i = 0; i < emailvar.length; i++) {
+                                    emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
+                                }
+                            } else {
+
+                                for (var i = 0; i < emailvar.length; i++) {
+                                    if (emailvar[i].indexOf(_endEamil) > 0) {
+                                        emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
+                                    }
+                                }
+                            }
+                            
+                            $("#email-list").empty().css("border", "1px solid #ccc");
+                            $("#email-list").html($(emailText));
+                            $("#email-list").find("div:first").addClass("current");
+                        }
+
+                        $("#email-list div").mouseover(function(){
+                            $("#email-list div").removeClass("current");
+                            $(this).addClass("current");
+                        }).mouseout(function(){
+                            $(this).removeClass("current");
+                        }).click(function(){
+                            _$this.val($(this).text());
+                            hideSuggestions();
+                        });
+                    }
+
+
+
+
+//                    $(document).keyup(function (event) {
+//
+//                        var _keyCode = event.keyCode;
+//                        var _currentDiv = $("#email-list").find("div.current");
+//                        if (_keyCode == 38) {//up
+//                            debugger;
+//                            if(_currentDiv.length == 0){
+//                                $("#email-list").find("div:first").addClass("current");
+//                                _$this.focus();
+//                            }else{
+//
+//                            }
+//                            return false;
+//
+//                        } else if (_keyCode == 40) {//down
+//                            debugger;
+//                            if(_currentDiv.length == 0){
+//                                $("#email-list").find("div:last").addClass("current");
+//                                _$this.focus();
+//                            }else{
+//
+//                            }
+//                            return false;
+//                        } else if (_keyCode == 13) {//down
+//                            hideSuggestions();
+//                            return false;
+//                        }
+//                    });
+
+
+                    /**
+                     * 因为有可能用户点击enter键，必须先捕获，否则keyup时就已经先提交了。
+                     */
 
                     $(document).keydown(function (event) {
 
                         var _keyCode = event.keyCode;
                         var _currentDiv = $("#email-list").find("div.current");
+
                         if (_keyCode == 13) {//enter
                             if(_currentDiv.text() != ""){
                                 _$this.val(_currentDiv.text());
                             }
-                            $("#email-list").empty().css("border", "0");
+                            hideSuggestions();
                             return false;
                         }
                     });
 
 
+                    var e=(event)?event:window.event;
+                    if (window.event) {
+                        e.cancelBubble=true;     // ie下阻止冒泡
+                    } else {
+                        e.preventDefault();
+                        e.stopPropagation();     // 其它浏览器下阻止冒泡
+                    }
+
                 });
 
             });
+
+            /**
+             * 隐藏提示
+             */
+            function hideSuggestions(){
+                $("#email-list").empty().css("border", "0");
+            }
+
         };
+
+
         $.fn.emailAddrSuggest.defaults = {};
 
 
