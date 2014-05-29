@@ -28,12 +28,18 @@
 </head>
 <body>
 <script type="text/javascript">
+
     $(function () {
         $("input[name='accname']").emailAddrSuggest();
     });
 
     /**
      * 当用户输入@符号时，提示email地址
+     * ie6+，
+     * chrome，firefox，safari
+     *
+     * 调用方式：
+     * $("input[name='accname']").emailAddrSuggest();
      */
     (function ($) {
         $.fn.emailAddrSuggest = function (options) {
