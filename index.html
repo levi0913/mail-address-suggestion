@@ -30,7 +30,8 @@
 <script type="text/javascript">
 
     $(function () {
-        $("input[name='accname']").emailAddrSuggest();
+        var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};
+        $("input[name='accname']").emailAddrSuggest(options);
     });
 
     /**
@@ -39,20 +40,32 @@
      * chrome，firefox，safari
      *
      * 调用方式：
-     * $("input[name='accname']").emailAddrSuggest();
+     * var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};//扩展email地址
+     * $("input[name='accname']").emailAddrSuggest(options);
      */
     (function ($) {
         $.fn.emailAddrSuggest = function (options) {
-            var emailvar = new Array("@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com");
+            var emailvar = $.fn.emailAddrSuggest.defaults.mailAddrs;
+
             var options = $.extend({}, $.fn.emailAddrSuggest.defaults, options);//为扩展留用
+
+            if(options.mailAddrs.length >0){
+                for(var i = 0; i < options.mailAddrs.length; i++){
+                    emailvar.push(options.mailAddrs[i]);
+                }
+            }
+
+
+//            var emailvar = new Array("@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com");
+
             return this.each(function () {
                 var _$this = $(this);
-                var _input_width = $($(this).get(0)).width();
+                var _input_width = $(_$this.get(0)).width();
 
                 var _toppos = getTop(this)+_$this.height()+2;
                 var _leftpos = getLeft(this);
 
-                _$this.after("<div id='email-list' style='width:200px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + _leftpos + "px; top:" + _toppos + "px; z-index:5px; '></div>");
+                _$this.after("<div id='email-list' style='width:"+_input_width+"px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + _leftpos + "px; top:" + _toppos + "px; z-index:5px; '></div>");
                 _$this.keyup(function (event) {
 
                     var _keyCode = event.keyCode;
@@ -205,7 +218,9 @@
          * 以后扩展使用。
          */
         $.fn.emailAddrSuggest.defaults = {
+                mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"]
         };
+
 
     })(jQuery);
 
@@ -214,7 +229,7 @@
     <ul id="register-ul">
         <li class="form-field">
             <label for="">帐户</label>
-            <input style="width: 200px;height: 34px;" name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
+            <input  name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
             <span class="tips-field"></span>
         </li>
 
