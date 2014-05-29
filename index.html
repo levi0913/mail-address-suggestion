@@ -8,18 +8,21 @@
         .form-field {
             height: 60px;
         }
-
+        ul,li{
+            list-style: none;
+        }
         input {
             width: 200px;
             height: 34px;
-            border: 1px solid #000;
+            border: 1px solid #ddd;
             padding: 0;
         }
         #email-list div{
             padding: 5px 0;
         }
         #email-list div.current {
-            background-color: #f00;
+            background-color: #f7f7f7;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -29,6 +32,9 @@
         $("input[name='accname']").emailAddrSuggest();
     });
 
+    /**
+     * 当用户输入@符号时，提示email地址
+     */
     (function ($) {
         $.fn.emailAddrSuggest = function (options) {
             var emailvar = new Array("@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com");
@@ -36,18 +42,20 @@
             return this.each(function () {
                 var _$this = $(this);
                 var _input_width = $($(this).get(0)).width();
-                $(this).after("<div id='email-list' style='width:200px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + $(this).get(0).offsetLeft + "px; top:" + ($(this).get(0).offsetTop + $(this).height() + 2) + "px; z-index:5px; '></div>");
+
+                var _toppos = getTop(this)+_$this.height()+2;
+                var _leftpos = getLeft(this);
+
+                _$this.after("<div id='email-list' style='width:200px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + _leftpos + "px; top:" + _toppos + "px; z-index:5px; '></div>");
                 _$this.keyup(function (event) {
 
                     var _keyCode = event.keyCode;
                     var _currentDiv = $("#email-list").find("div.current");//默认选择第一个元素
                     var _suggestList = $("#email-list").find("div").length;//总共有多少个
 
-
                     if (_keyCode == 38) {//up
-//                        _currentDiv = $("#email-list").find("div.current");//当前选择的元素 有可能中间鼠标滑动到其它选择元素上，所以重新再获取一次
-                        //有可选的，否则隐藏提示
-                        if(_suggestList > 0){
+
+                        if(_suggestList > 0){//有备选项，否则隐藏提示
 
                             if(_currentDiv.length == 0){
                                 $("#email-list").find("div:first").addClass("current");
@@ -68,9 +76,6 @@
                         }
 
                     } else if (_keyCode == 40) {//down
-
-                        //_currentDiv = $("#email-list").find("div.current");//当前选择的元素 有可能中间鼠标滑动到其它选择元素上，所以重新再获取一次
-                        //有可选的，否则隐藏提示
                         if(_suggestList > 0){
 
                             if(_currentDiv.length == 0){
@@ -92,9 +97,6 @@
                         }else{
                             hideSuggestions();
                         }
-
-
-
                     } else if (_keyCode == 27) {//esc
                         hideSuggestions();
                         return false;
@@ -116,7 +118,6 @@
                                     emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
                                 }
                             } else {
-
                                 for (var i = 0; i < emailvar.length; i++) {
                                     if (emailvar[i].indexOf(_endEamil) > 0) {
                                         emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
@@ -140,14 +141,10 @@
                         });
                     }
 
-
-
                     /**
                      * 因为有可能用户点击enter键，必须先捕获，否则keyup时就已经先提交了。
                      */
-
                     $(document).keydown(function (event) {
-
                         var _keyCode = event.keyCode;
                         var _currentDiv = $("#email-list").find("div.current");
 
@@ -159,7 +156,6 @@
                             return false;
                         }
                     });
-
 
                     var e=(event)?event:window.event;
                     if (window.event) {
@@ -174,17 +170,36 @@
             });
 
             /**
-             * 隐藏提示
+             * 私有方法：隐藏提示
              */
             function hideSuggestions(){
                 $("#email-list").empty().css("border", "0");
             }
 
+            /**
+             * 私有方法：获取某元素的绝对高的位置
+             */
+            function getTop(e){
+                var offset=e.offsetTop;
+                if(e.offsetParent!=null) offset+=getTop(e.offsetParent);
+                return offset;
+            }
+
+            /**
+             * 私有方法：获取某元素的绝对宽的位置
+             */
+            function getLeft(e){
+                var offset=e.offsetLeft;
+                if(e.offsetParent!=null) offset+=getLeft(e.offsetParent);
+                return offset;
+            }
         };
 
-
-        $.fn.emailAddrSuggest.defaults = {};
-
+        /**
+         * 以后扩展使用。
+         */
+        $.fn.emailAddrSuggest.defaults = {
+        };
 
     })(jQuery);
 
@@ -193,11 +208,9 @@
     <ul id="register-ul">
         <li class="form-field">
             <label for="">帐户</label>
-            <input name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱"
-                   original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
+            <input style="width: 200px;height: 34px;" name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
             <span class="tips-field"></span>
         </li>
-
 
         <li class="form-field">
             <label for="">密码</label>
@@ -211,5 +224,6 @@
         </li>
     </ul>
 </form>
+
 </body>
 </html>
