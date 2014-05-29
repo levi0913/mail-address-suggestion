@@ -43,6 +43,10 @@
      * 调用方式：
      * var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};//扩展email地址
      * $("input[name='accname']").emailAddrSuggest(options);
+     *
+     *
+     * TODO：插件暂时未考虑到元素有padding，从而宽度和高度不准确，因此需要手动指定其宽度，例如：
+     * $("#email-list").css( "width", $("#email-list").width()+20 );//其中20是左右的pading之和
      */
     (function ($) {
         $.fn.emailAddrSuggest = function (options) {
