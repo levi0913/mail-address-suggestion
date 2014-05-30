@@ -59,7 +59,7 @@
          * 为某对象绑定自定义事件，在插件内部调用
          */
         $("input[name='accname']").bind("custom.event",function(){
-            //console.log("custom event called");
+            console.log("custom event called");
             return false;
         });
 
@@ -178,7 +178,8 @@
                                 }
                             } else {
                                 for (var i = 0; i < emailvar.length; i++) {
-                                    if (emailvar[i].indexOf(_endEamil) > 0) {
+                                    debugger;
+                                    if (emailvar[i].indexOf(_endEamil) > 0 && emailvar[i]!=_endEamil) {
                                         emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
                                     }
                                 }
@@ -219,6 +220,10 @@
                                 return false;
                             }else if(_keyCode == 9){
                                 $("#email-list").empty().css("border", "0");
+//                            $(document).unbind();
+
+//                            hideSuggestions(_$this,5);
+//                            _$this.trigger("custom.event");
                                 return false;
                             }
                         }).click(function(e){
@@ -241,9 +246,10 @@
              * 私有方法：隐藏提示
              */
             function hideSuggestions(_$this,from){
-                //console.log(from+" 被调用");
                 $("#email-list").empty().css("border", "0");
                 _$this.trigger("custom.event");
+                $(document).unbind();
+//                $(options.nextTab).focus();//tab键盘需要设置下一个焦点
                 iii=1;
                 return false;
             }
@@ -271,12 +277,12 @@
          * 以后扩展使用。
          */
         $.fn.emailAddrSuggest.defaults = {
-           mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"],
+            mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"],
             nextTab:""
         };
 
 
-        /*email地址提示插件               结束*/
+        /*email地址提示插件            结束*/
 
 
     })(jQuery);
