@@ -32,6 +32,14 @@
     $(function () {
         var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};
         $("input[name='accname']").emailAddrSuggest(options);
+
+        /**
+         * 为某对象绑定自定义事件，在插件内部调用
+         */
+        $("input[name='accname']").bind("custom.event",function(){
+            console.log("custom event called");
+            return false;
+        });
     });
 
 
@@ -93,7 +101,7 @@
                                 }
                             }
                         }else{
-                            hideSuggestions();
+                            hideSuggestions(_$this);
                         }
 
                     } else if (_keyCode == 40) {//down
@@ -103,8 +111,6 @@
                                 $("#email-list").find("div:last").addClass("current");
                                 _$this.focus();
                             }else{
-
-
                                 if(_currentDiv.next().length == 0){//已经是第一个，就移动到最后一个
                                     $("#email-list div").removeClass("current");
                                     $("#email-list").find("div:first").addClass("current");
@@ -116,16 +122,16 @@
                                 }
                             }
                         }else{
-                            hideSuggestions();
+                            hideSuggestions(_$this);
                         }
                     } else if (_keyCode == 27) {//esc
-                        hideSuggestions();
+                        hideSuggestions(_$this);
                         return false;
                     } else if (_keyCode == 13) {//enter
                         if(_currentDiv.text() != ""){
                             _$this.val(_currentDiv.text());
                         }
-                        hideSuggestions();
+                        hideSuggestions(_$this);
                         return false;
                     }else{
                         var _inputValu = _$this.val();
@@ -158,12 +164,12 @@
                             $(this).removeClass("current");
                         }).click(function(){
                             _$this.val($(this).text());
-                            hideSuggestions();
+                            hideSuggestions(_$this);
                         });
                     }
 
                     /**
-                     * 因为有可能用户点击enter键，必须先捕获，否则keyup时就已经先提交了。
+                     * 当用户点击enter键，必须先捕获，否则keyup时就已经先提交了。
                      */
                     $(document).keydown(function (event) {
                         var _keyCode = event.keyCode;
@@ -173,7 +179,19 @@
                             if(_currentDiv.text() != ""){
                                 _$this.val(_currentDiv.text());
                             }
-                            hideSuggestions();
+                            hideSuggestions(_$this);
+                            return false;
+                        }
+                    });
+
+                    /**
+                     * 当用户点击tab键，必须先捕获。
+                     */
+                    $(document).keyup(function (event) {
+                        var _keyCode = event.keyCode;
+                        if (_keyCode == 9) {//tab
+                            console.log("$(document).keyup, tab");
+                            hideSuggestions(_$this);
                             return false;
                         }
                     });
@@ -193,8 +211,9 @@
             /**
              * 私有方法：隐藏提示
              */
-            function hideSuggestions(){
+            function hideSuggestions(_$this){
                 $("#email-list").empty().css("border", "0");
+                _$this.trigger("custom.event");
             }
 
             /**
