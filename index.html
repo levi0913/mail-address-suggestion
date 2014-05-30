@@ -44,21 +44,25 @@
 
 
     $(function () {
-        var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};
+        var options = {
+            mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"],
+            nextTab: "input[name='password']"
+        };
         $("input[name='accname']").emailAddrSuggest(options);
+
+
+//        $("input[name='accname']").blur(function(){
+//            console.log("input blur called");
+//        });
 
         /**
          * 为某对象绑定自定义事件，在插件内部调用
          */
         $("input[name='accname']").bind("custom.event",function(){
-            console.log("custom event called");
+            //console.log("custom event called");
             return false;
         });
 
-        $("body").bind("body.click.event",function(){
-            console.log("body.click.event called");
-            return false;
-        });
     });
 
 
@@ -68,7 +72,7 @@
      * 支持浏览器：ie6+，chrome，firefox，safari
      *
      * 调用方式：
-     * var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};//扩展email地址
+     * var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"], nextTab: "input[name='password']"};//扩展email地址
      * $("input[name='accname']").emailAddrSuggest(options);
      *
      *
@@ -78,6 +82,7 @@
     (function ($) {
         $.fn.emailAddrSuggest = function (options) {
             var emailvar = $.fn.emailAddrSuggest.defaults.mailAddrs;
+            var calledTimes;//点击body时会执行多次，判断是否是多次的标识
 
             var options = $.extend({}, $.fn.emailAddrSuggest.defaults, options);//为扩展留用
 
@@ -88,6 +93,7 @@
             }
 
             return this.each(function () {
+
                 var _$this = $(this);
                 var _input_width = $(_$this.get(0)).width();
 
@@ -96,9 +102,8 @@
 
                 _$this.after("<div id='email-list' style='width:"+_input_width+"px; height:auto; background:#fff; color:#6B6B6B; position:absolute; left:" + _leftpos + "px; top:" + _toppos + "px; z-index:5px; '></div>");
                 _$this.keyup(function (event) {
-
+                    iii=1;
                     var _keyCode = event.keyCode;
-                    console.log(_keyCode);
                     var _currentDiv = $("#email-list").find("div.current");//默认选择第一个元素
                     var _suggestList = $("#email-list").find("div").length;//总共有多少个
 
@@ -148,7 +153,6 @@
                         hideSuggestions(_$this,3);
                         return false;
                     } else if (_keyCode == 13) {//enter
-                        debugger;
                         if(_currentDiv.text() != ""){
                             _$this.val(_currentDiv.text());
                             return false;
@@ -157,7 +161,7 @@
                         return false;
                     }else if(_keyCode == 9){//tab
                         hideSuggestions(_$this,91);
-                        $("input[name='password']").focus();//tab键盘需要设置下一个焦点
+                        $(options.nextTab).focus();//tab键盘需要设置下一个焦点
                         return false;
                     }else if(_keyCode == 16){//shift
 
@@ -166,7 +170,6 @@
                         var _inputValu = _$this.val();
                         var emailText = "";
                         if (_inputValu.indexOf("@") > 0) {
-                            console.log(111);
                             var _beforeEamil = _inputValu.split("@")[0];
                             var _endEamil = _inputValu.split("@")[1];
                             if (_endEamil == "") {
@@ -189,11 +192,14 @@
                         $("#email-list div").mouseover(function(){
                             $("#email-list div").removeClass("current");
                             $(this).addClass("current");
+                            return false;
                         }).mouseout(function(){
                             $(this).removeClass("current");
+                            return false;
                         }).click(function(){
                             _$this.val($(this).text());
                             hideSuggestions(_$this,5);
+                            return false;
                         });
 
 
@@ -208,17 +214,19 @@
                                 if(_currentDiv.text() != ""){
                                     _$this.val(_currentDiv.text());
                                     hideSuggestions(_$this,4);
+                                    $(options.nextTab).focus();//tab键盘需要设置下一个焦点
                                 }
                                 return false;
                             }else if(_keyCode == 9){
                                 $("#email-list").empty().css("border", "0");
-                                console.log("tab key : keydown");
-//                            $(document).unbind();
-
-//                            hideSuggestions(_$this,5);
-//                            _$this.trigger("custom.event");
                                 return false;
                             }
+                        }).click(function(e){
+                            if(iii == 1){
+                                hideSuggestions(_$this,13);
+                            }
+                            iii++;
+                            return false;
                         });
 
 
@@ -233,9 +241,10 @@
              * 私有方法：隐藏提示
              */
             function hideSuggestions(_$this,from){
-                console.log(from+" 被调用");
+                //console.log(from+" 被调用");
                 $("#email-list").empty().css("border", "0");
                 _$this.trigger("custom.event");
+                iii=1;
                 return false;
             }
 
@@ -262,7 +271,8 @@
          * 以后扩展使用。
          */
         $.fn.emailAddrSuggest.defaults = {
-           mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"]
+           mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"],
+            nextTab:""
         };
 
 
@@ -273,26 +283,37 @@
 
 
 </script>
-<form action="#" method="post">
-    <ul id="register-ul">
-        <li class="form-field">
-            <label for="">帐户</label>
-            <input  name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
-            <span class="tips-field"></span>
-        </li>
 
-        <li class="form-field">
-            <label for="">密码</label>
-            <input name="password" tabindex="1" type="text" value="" placeholder="" original-title="">
-            <span class="tips-field"></span>
-        </li>
 
-        <li class="form-field">
-            <label for=""></label>
-            <button type="submit" class="submit pub_btn red huge-width" tabindex="4">下一步</button>
-        </li>
-    </ul>
-</form>
+<div class="xxxxxx">
+    <div>
+        <div><div>
+            <div>
+                <form action="#" method="post">
+                    <ul id="register-ul">
+                        <li class="form-field">
+                            <label for="">帐户</label>
+                            <input  name="accname" tabindex="1" type="text" value="" placeholder="请输入手机号码或常用邮箱" original-title="输入的手机号码或常<br/>用邮箱将作为账户名" autocomplete="off"/>
+                            <span class="tips-field"></span>
+                        </li>
+
+                        <li class="form-field">
+                            <label for="">密码</label>
+                            <input name="password" tabindex="1" type="text" value="" placeholder="" original-title="">
+                            <span class="tips-field"></span>
+                        </li>
+
+                        <li class="form-field">
+                            <label for=""></label>
+                            <button type="submit" class="submit pub_btn red huge-width" tabindex="4">下一步</button>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
