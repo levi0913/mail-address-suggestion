@@ -29,6 +29,20 @@
 <body>
 <script type="text/javascript">
 
+    // Avoid `console` errors in browsers that lack a console.
+    if (!(window.console && console.log)) {
+        (function() {
+            var noop = function() {};
+            var methods = ['assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error', 'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log', 'markTimeline', 'profile', 'profileEnd', 'markTimeline', 'table', 'time', 'timeEnd', 'timeStamp', 'trace', 'warn'];
+            var length = methods.length;
+            var console = window.console = {};
+            while (length--) {
+                console[methods[length]] = noop;
+            }
+        }());
+    }
+
+
     $(function () {
         var options = {mailAddrs : ["@111.com", "@222.com", "@333.com", "@444.com"]};
         $("input[name='accname']").emailAddrSuggest(options);
@@ -38,6 +52,11 @@
          */
         $("input[name='accname']").bind("custom.event",function(){
             console.log("custom event called");
+            return false;
+        });
+
+        $("body").bind("body.click.event",function(){
+            console.log("body.click.event called");
             return false;
         });
     });
@@ -79,6 +98,7 @@
                 _$this.keyup(function (event) {
 
                     var _keyCode = event.keyCode;
+                    console.log(_keyCode);
                     var _currentDiv = $("#email-list").find("div.current");//默认选择第一个元素
                     var _suggestList = $("#email-list").find("div").length;//总共有多少个
 
@@ -101,7 +121,7 @@
                                 }
                             }
                         }else{
-                            hideSuggestions(_$this);
+                            hideSuggestions(_$this,1);
                         }
 
                     } else if (_keyCode == 40) {//down
@@ -122,24 +142,33 @@
                                 }
                             }
                         }else{
-                            hideSuggestions(_$this);
+                            hideSuggestions(_$this,2);
                         }
                     } else if (_keyCode == 27) {//esc
-                        hideSuggestions(_$this);
+                        hideSuggestions(_$this,3);
                         return false;
                     } else if (_keyCode == 13) {//enter
+                        debugger;
                         if(_currentDiv.text() != ""){
                             _$this.val(_currentDiv.text());
+                            return false;
                         }
-                        hideSuggestions(_$this);
+                        hideSuggestions(_$this,4);
+                        return false;
+                    }else if(_keyCode == 9){//tab
+                        hideSuggestions(_$this,91);
+                        $("input[name='password']").focus();//tab键盘需要设置下一个焦点
+                        return false;
+                    }else if(_keyCode == 16){//shift
+
                         return false;
                     }else{
                         var _inputValu = _$this.val();
                         var emailText = "";
                         if (_inputValu.indexOf("@") > 0) {
+                            console.log(111);
                             var _beforeEamil = _inputValu.split("@")[0];
                             var _endEamil = _inputValu.split("@")[1];
-
                             if (_endEamil == "") {
                                 for (var i = 0; i < emailvar.length; i++) {
                                     emailText += "<div>" + _beforeEamil + emailvar[i] + "</div>";
@@ -164,44 +193,36 @@
                             $(this).removeClass("current");
                         }).click(function(){
                             _$this.val($(this).text());
-                            hideSuggestions(_$this);
+                            hideSuggestions(_$this,5);
                         });
-                    }
 
-                    /**
-                     * 当用户点击enter键，必须先捕获，否则keyup时就已经先提交了。
-                     */
-                    $(document).keydown(function (event) {
-                        var _keyCode = event.keyCode;
-                        var _currentDiv = $("#email-list").find("div.current");
 
-                        if (_keyCode == 13) {//enter
-                            if(_currentDiv.text() != ""){
-                                _$this.val(_currentDiv.text());
+                        /**
+                         * 当用户点击enter键，必须先捕获，否则keyup时就已经先提交了。
+                         */
+                        $(document).keydown(function (event) {
+                            var _keyCode = event.keyCode;
+                            var _currentDiv = $("#email-list").find("div.current");
+
+                            if (_keyCode == 13) {//enter
+                                if(_currentDiv.text() != ""){
+                                    _$this.val(_currentDiv.text());
+                                    hideSuggestions(_$this,4);
+                                }
+                                return false;
+                            }else if(_keyCode == 9){
+                                $("#email-list").empty().css("border", "0");
+                                console.log("tab key : keydown");
+//                            $(document).unbind();
+
+//                            hideSuggestions(_$this,5);
+//                            _$this.trigger("custom.event");
+                                return false;
                             }
-                            hideSuggestions(_$this);
-                            return false;
-                        }
-                    });
+                        });
 
-                    /**
-                     * 当用户点击tab键，必须先捕获。
-                     */
-                    $(document).keyup(function (event) {
-                        var _keyCode = event.keyCode;
-                        if (_keyCode == 9) {//tab
-                            console.log("$(document).keyup, tab");
-                            hideSuggestions(_$this);
-                            return false;
-                        }
-                    });
 
-                    var e=(event)?event:window.event;
-                    if (window.event) {
-                        e.cancelBubble=true;     // ie下阻止冒泡
-                    } else {
-                        e.preventDefault();
-                        e.stopPropagation();     // 其它浏览器下阻止冒泡
+                        return false;
                     }
 
                 });
@@ -211,9 +232,11 @@
             /**
              * 私有方法：隐藏提示
              */
-            function hideSuggestions(_$this){
+            function hideSuggestions(_$this,from){
+                console.log(from+" 被调用");
                 $("#email-list").empty().css("border", "0");
                 _$this.trigger("custom.event");
+                return false;
             }
 
             /**
@@ -239,7 +262,7 @@
          * 以后扩展使用。
          */
         $.fn.emailAddrSuggest.defaults = {
-                mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"]
+           mailAddrs : ["@163.com", "@126.com", "@yahoo.com", "@qq.com", "@sina.com", "@gmail.com", "@hotmail.com", "@foxmail.com"]
         };
 
 
@@ -247,6 +270,7 @@
 
 
     })(jQuery);
+
 
 </script>
 <form action="#" method="post">
